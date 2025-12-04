@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timed QA Scenario Assessment</title>
+    <style>
+        /* CSS for Typeform-like UI */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f7f6;
+            color: #333;
+            transition: background-color 0.5s;
+        }
+        #quiz-container {
+            background: white;
+            padding: 40px 60px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 700px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .question-slide {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .question-slide.active {
+            display: block;
+            opacity: 1;
+        }
+        h2 {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .scenario-text {
+            font-size: 1.1em;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            padding: 15px;
+            background-color: #eef3f5;
+            border-left: 5px solid #28a745; /* Green for QA focus */
+            border-radius: 4px;
+        }
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            background: white;
+            font-size: 1.05em;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            line-height: 1.4;
+        }
+        .option-button:hover {
+            border-color: #28a745;
+            background-color: #f0fff0;
+        }
+        .option-button.selected {
+            background-color: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        #navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+        }
+        .nav-button {
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #next-button {
+            background-color: #28a745;
+            color: white;
+        }
+        #next-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #prev-button {
+            background-color: #e9ecef;
+            color: #333;
+        }
+        #result-screen {
+            text-align: center;
+            padding: 50px 0;
+        }
+        #result-screen h2 {
+            font-size: 2.5em;
+            color: #28a745;
+        }
+        .progress-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #28a745;
+            width: 0%;
+            transition: width 0.3s ease-in-out;
+        }
+        #timer-display {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #dc3545; /* Red color for urgency */
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        /* Style for the start screen */
+        #start-screen {
+            text-align: center;
+            padding: 50px 20px;
+        }
+        #start-screen h1 {
+            color: #28a745;
+            font-size: 2.5em;
+        }
+        #start-button {
+            background-color: #28a745;
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.4em;
+            border-radius: 8px;
+            margin-top: 30px;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
+        }
+        #start-button:hover {
+            background-color: #1e7e34;
+        }
+        .instruction-item {
+            text-align: left;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        .important-note {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div id="quiz-container">
+    
+    <div id="start-screen">
+        <h1>QA Scenario Assessment</h1>
+        <p style="margin-top: 20px; font-size: 1.2em;">Welcome to the timed technical assessment. Please read the instructions carefully before starting.</p>
+        
+        <hr style="margin: 25px 0;">
+
+        <div class="instruction-item">
+            ✅ **Total Questions:** 20 Scenario-based questions covering test strategy, automation, and defect management.
+        </div>
+        <div class="instruction-item">
+            ⏱️ **Time Limit:** You have **30 seconds** per question.
+        </div>
+        <div class="instruction-item important-note">
+            ⚠️ **Critical:** The timer will start immediately upon clicking 'Start Test' and questions will auto-advance when time runs out. You cannot return to skipped questions once the timer expires.
+        </div>
+        <button id="start-button" onclick="startQuiz()">Start Test</button>
+    </div>
+    
+    <div id="quiz-interface" style="display: none;">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div id="timer-display">Time Left: <span id="time-left">30</span>s</div>
+        
+        <div id="quiz-content">
+            </div>
+        
+        <div id="result-screen" style="display: none;">
+            <h2>Assessment Complete! 🎉</h2>
+            <p style="font-size: 1.2em;">You have successfully completed the QA Scenario Assessment.</p>
+            <p style="font-size: 1.5em; margin-top: 20px;">Your Score:</p>
+            <p id="final-score" style="font-size: 3em; font-weight: bold; color: #28a745;">--/--</p>
+            <p id="performance-feedback" style="font-size: 1.1em; color: #555;"></p>
+            <button class="nav-button" onclick="window.location.reload()">Retake Assessment</button>
+        </div>
+
+        <div id="navigation">
+            <button id="prev-button" class="nav-button" disabled>← Previous</button>
+            <button id="next-button" class="nav-button" disabled>Next →</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Utility function to shuffle an array (Fisher-Yates)
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    const initialQuestions = [
+        // --- 20 QA Scenario Questions (Copied from previous response) ---
+        {
+            scenario: "A developer fixes a critical defect in the payment gateway. You need to ensure the fix works and hasn't broken anything adjacent to the code change.",
+            question: "What type of testing should you prioritize immediately after the fix is deployed to the QA environment?",
+            options: [
+                "A. Regression Testing (Full Suite)",
+                "B. Load Testing",
+                "C. **Sanity Testing** (focused on the change area)",
+                "D. Exploratory Testing"
+            ],
+            answerText: "C. **Sanity Testing** (focused on the change area)"
+        },
+        {
+            scenario: "You find a defect where a user's profile image occasionally fails to load, but only for users in Asia using a mobile device on a slow network. It doesn't affect core functionality.",
+            question: "When logging this defect, what is the most appropriate combination of **Severity** and **Priority**?",
+            options: [
+                "A. Severity: Critical, Priority: High",
+                "B. Severity: Minor, Priority: Low",
+                "C. **Severity: Major, Priority: Medium**",
+                "D. Severity: Blocker, Priority: Urgent"
+            ],
+            answerText: "C. **Severity: Major, Priority: Medium**"
+        },
+        {
+            scenario: "The team decides to implement **Behavior-Driven Development (BDD)**. The Product Owner asks you to contribute to writing feature specifications.",
+            question: "Which standardized format would you use to write these shared, human-readable test cases?",
+            options: [
+                "A. Python Scripts",
+                "B. **Gherkin Syntax (Given-When-Then)**",
+                "C. XML Schemas",
+                "D. UML Diagrams"
+            ],
+            answerText: "B. **Gherkin Syntax (Given-When-Then)**"
+        },
+        {
+            scenario: "You need to create a **Unit Test** for a function that converts currency. The function has 5 different input parameters.",
+            question: "According to the **Test Automation Pyramid**, who is primarily responsible for writing and maintaining this test?",
+            options: [
+                "A. **The Developer** (Dev)",
+                "B. The QA Engineer",
+                "C. The DevOps Engineer",
+                "D. The Product Owner"
+            ],
+            answerText: "A. **The Developer** (Dev)"
+        },
+        {
+            scenario: "The application uses a **third-party API** for mapping data. You want to write automated tests that don't rely on the external API being available or incurring usage costs.",
+            question: "Which technique should you use in your automated integration tests?",
+            options: [
+                "A. Load Testing the third-party API.",
+                "B. Writing an End-to-End (E2E) test.",
+                "C. **Mocking or Stubbing** the API response.",
+                "D. Performing manual testing only."
+            ],
+            answerText: "C. **Mocking or Stubbing** the API response."
+        },
+        {
+            scenario: "The new build for the Staging environment just passed all automated CI tests. When you manually test, the main login page fails with a **500 Internal Server Error**.",
+            question: "What is the most likely reason why the automated tests passed but manual testing failed?",
+            options: [
+                "A. The developer forgot to commit the code.",
+                "B. The automated tests were **not comprehensive** (e.g., only unit tests ran).",
+                "C. The server ran out of disk space.",
+                "D. The E2E tests were written in the wrong language."
+            ],
+            answerText: "B. The automated tests were **not comprehensive** (e.g., only unit tests ran)."
+        },
+        {
+            scenario: "Your team is preparing for a Black Friday sales event. You need to verify the application can handle ten times the normal traffic.",
+            question: "What type of non-functional testing are you about to perform?",
+            options: [
+                "A. Regression Testing",
+                "B. **Stress Testing**",
+                "C. Usability Testing",
+                "D. Security Penetration Testing"
+            ],
+            answerText: "B. **Stress Testing**"
+        },
+        {
+            scenario: "You are writing a test case for a user form that accepts a 10-digit phone number. You want to minimize the number of test cases while ensuring high coverage.",
+            question: "Which test case design technique should you use to select the most impactful inputs?",
+            options: [
+                "A. Pairwise Testing",
+                "B. **Equivalence Partitioning and Boundary Value Analysis**",
+                "C. Fuzz Testing",
+                "D. Ad-hoc Testing"
+            ],
+            answerText: "B. **Equivalence Partitioning and Boundary Value Analysis**"
+        },
+        {
+            scenario: "In an Agile sprint, you find a bug in a feature that was signed off and deployed in the *previous* sprint.",
+            question: "What is your best course of action regarding the current sprint's work?",
+            options: [
+                "A. Stop current work and fix the bug immediately (if priority allows).",
+                "B. **Log the bug and bring it up for triage/prioritization with the Product Owner.**",
+                "C. Delete the entire feature and restart.",
+                "D. Only fix the bug after the current sprint is complete."
+            ],
+            answerText: "B. **Log the bug and bring it up for triage/prioritization with the Product Owner.**"
+        },
+        {
+            scenario: "You are setting up automated E2E tests using Cypress. You need to ensure the test environment always starts with a clean database state.",
+            question: "What DevOps practice/tool would you ask the DevOps Engineer to set up for this specific need?",
+            options: [
+                "A. Implement a new CI/CD pipeline.",
+                "B. **Provide database sanitization or a 'golden' snapshot reset endpoint.**",
+                "C. Increase the CPU allocation for the test server.",
+                "D. Use a different UI testing tool."
+            ],
+            answerText: "B. **Provide database sanitization or a 'golden' snapshot reset endpoint.**"
+        },
+        {
+            scenario: "A security audit reveals that your application's input fields are vulnerable to **Cross-Site Scripting (XSS)** attacks.",
+            question: "Which common QA testing type covers this vulnerability?",
+            options: [
+                "A. Usability Testing",
+                "B. **Penetration Testing (Security Testing)**",
+                "C. Accessibility Testing",
+                "D. Unit Testing"
+            ],
+            answerText: "B. **Penetration Testing (Security Testing)**"
+        },
+        {
+            scenario: "You observe inconsistent test results; sometimes a test passes, and sometimes it fails, without any code change.",
+            question: "What is the technical term for this unreliable test behavior?",
+            options: [
+                "A. Boundary Condition Failure",
+                "B. **Flaky Test**",
+                "C. Integration Error",
+                "D. Negative Test Failure"
+            ],
+            answerText: "B. **Flaky Test**"
+        },
+        {
+            scenario: "You are tasked with confirming the application meets the documented requirements and specifications.",
+            question: "Which of the two fundamental QA activities are you performing: Verification or Validation?",
+            options: [
+                "A. Validation ('Are we building the right product?')",
+                "B. **Verification** ('Are we building the product right?')",
+                "C. Both activities simultaneously.",
+                "D. Neither, this is a developer task."
+            ],
+            answerText: "B. **Verification** ('Are we building the product right?')"
+        },
+        {
+            scenario: "Your team uses **Selenium** for E2E tests. The tests run successfully on your local machine but fail immediately in the CI/CD pipeline environment.",
+            question: "What is the **most probable** cause of this failure?",
+            options: [
+                "A. The local database is out of sync.",
+                "B. The CI environment is missing the necessary **browser driver (e.g., ChromeDriver)** or GUI is unavailable (Headless mode issue).",
+                "C. The application code is different between environments.",
+                "D. The network latency is too high."
+            ],
+            answerText: "B. The CI environment is missing the necessary **browser driver (e.g., ChromeDriver)** or GUI is unavailable (Headless mode issue)."
+        },
+        {
+            scenario: "You are given a complex new feature with no clear documentation. You need to quickly understand its functionality and find potential weak spots.",
+            question: "Which testing technique is best suited for this exploratory, unscripted investigation?",
+            options: [
+                "A. Formal Review",
+                "B. Automated Regression",
+                "C. **Exploratory Testing**",
+                "D. Stress Testing"
+            ],
+            answerText: "C. **Exploratory Testing**"
+        },
+        {
+            scenario: "During an Agile daily stand-up, a developer states they wrote code based on a misunderstanding of the acceptance criteria (AC).",
+            question: "How could the QA process have **prevented** this issue (Shift-Left principle)?",
+            options: [
+                "A. By only doing formal testing after the feature is complete.",
+                "B. **By the QA being involved in the AC/requirements refinement (Grooming) BEFORE coding starts.**",
+                "C. By making the code review mandatory.",
+                "D. By writing more End-to-End tests."
+            ],
+            answerText: "B. **By the QA being involved in the AC/requirements refinement (Grooming) BEFORE coding starts.**"
+        },
+        {
+            scenario: "A QA lead wants to ensure the **entire application** is stable and the major components are communicating correctly after a large merge.",
+            question: "Which testing type is most appropriate for this objective?",
+            options: [
+                "A. Unit Testing",
+                "B. Integration Testing (component-to-component)",
+                "C. **Smoke Testing** (High-level system check)",
+                "D. Beta Testing"
+            ],
+            answerText: "C. **Smoke Testing** (High-level system check)"
+        },
+        {
+            scenario: "You discover a defect in Production that was NOT found during testing, primarily because the test data used was too uniform (e.g., all usernames were 'user1', 'user2').",
+            question: "What critical QA planning area failed, and what is the solution?",
+            options: [
+                "A. Failure in performance testing; Solution: Increase load.",
+                "B. Failure in security testing; Solution: Use XSS payload.",
+                "C. **Failure in Test Data Management (TDM); Solution: Use diverse, realistic, masked data.**",
+                "D. Failure in defect reporting; Solution: Change Jira format."
+            ],
+            answerText: "C. **Failure in Test Data Management (TDM); Solution: Use diverse, realistic, masked data.**"
+        },
+        {
+            scenario: "The application uses a microservice architecture where many small services talk to each other. You need to verify data consistency across three different services (A, B, and C).",
+            question: "Which type of automated test provides the best coverage for verifying data flow between these internal services?",
+            options: [
+                "A. UI Tests (E2E)",
+                "B. **Integration Tests (API/Service Level)**",
+                "C. Manual Regression Tests",
+                "D. Accessibility Tests"
+            ],
+            answerText: "B. **Integration Tests (API/Service Level)**"
+        },
+        {
+            scenario: "During load testing, you find that CPU usage on the web servers remains low (20%), but the response time dramatically slows down as the number of users increases.",
+            question: "Which component is the most likely bottleneck to investigate next?",
+            options: [
+                "A. **Database performance (e.g., slow queries, connection pooling)**",
+                "B. Frontend JavaScript rendering speed.",
+                "C. Load balancer configuration (e.g., ALB rules).",
+                "D. Network cable integrity."
+            ],
+            answerText: "A. **Database performance (e.g., slow queries, connection pooling)**"
+        }
+        // --- End of Questions ---
+    ];
+
+    // --- Data Preparation: Match Answer Index to Randomized Options ---
+    const questions = initialQuestions.map(q => {
+        const indexedOptions = q.options.map((text) => ({ text: text, isCorrect: text === q.answerText }));
+        const shuffledOptions = shuffleArray(indexedOptions);
+        const newAnswerIndex = shuffledOptions.findIndex(opt => opt.isCorrect);
+        const finalOptions = shuffledOptions.map(opt => opt.text);
+        return {
+            scenario: q.scenario,
+            question: q.question,
+            options: finalOptions,
+            answer: newAnswerIndex
+        };
+    });
+
+    let currentQuestionIndex = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+    let timerInterval;
+    const TIME_LIMIT = 30; // Seconds per question
+
+    const startScreen = document.getElementById('start-screen');
+    const quizInterface = document.getElementById('quiz-interface');
+    const quizContent = document.getElementById('quiz-content');
+    const resultScreen = document.getElementById('result-screen');
+    const nextButton = document.getElementById('next-button');
+    const prevButton = document.getElementById('prev-button');
+    const progressFill = document.getElementById('progress-fill');
+    const timeLeftSpan = document.getElementById('time-left');
+    const totalQuestions = questions.length;
+
+    // --- Core Function to Start Quiz ---
+    window.startQuiz = function() { // Make startQuiz globally accessible from HTML onclick
+        startScreen.style.display = 'none';
+        quizInterface.style.display = 'block';
+        
+        // Render the first question and start the timer
+        renderQuestion(currentQuestionIndex);
+    }
+
+    // --- Timer Functions ---
+    function startTimer() {
+        clearInterval(timerInterval);
+        let timeRemaining = TIME_LIMIT;
+        timeLeftSpan.textContent = timeRemaining;
+
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            timeLeftSpan.textContent = timeRemaining;
+
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                // Auto-advance logic: If not answered, mark as unanswered (null)
+                if (currentQuestionIndex < totalQuestions - 1) {
+                    currentQuestionIndex++;
+                    renderQuestion(currentQuestionIndex);
+                } else {
+                    showResults();
+                }
+            }
+        }, 1000);
+    }
+
+    // --- Question Rendering ---
+    function renderQuestion(index) {
+        clearInterval(timerInterval);
+        document.querySelectorAll('.question-slide').forEach(q => q.classList.remove('active'));
+
+        let questionElement = document.getElementById(`q-${index}`);
+
+        if (!questionElement) {
+            const qData = questions[index];
+            questionElement = document.createElement('div');
+            questionElement.className = 'question-slide';
+            questionElement.id = `q-${index}`;
+
+            let optionsHtml = qData.options.map((option, optIndex) => `
+                <button class="option-button" data-question-index="${index}" data-option-index="${optIndex}">
+                    ${option}
+                </button>
+            `).join('');
+
+            questionElement.innerHTML = `
+                <h2>Question ${index + 1} of ${totalQuestions}</h2>
+                <div class="scenario-text">${qData.scenario}</div>
+                <p style="font-weight: bold;">${qData.question}</p>
+                <div class="options-group">${optionsHtml}</div>
+            `;
+            quizContent.appendChild(questionElement);
+
+            questionElement.querySelectorAll('.option-button').forEach(button => {
+                button.addEventListener('click', handleOptionClick);
+            });
+        }
+        
+        setTimeout(() => { questionElement.classList.add('active'); }, 10); 
+        
+        // Only restart the timer if we are moving forward or starting
+        if (index >= userAnswers.findIndex(a => a === null) || index === 0) {
+             startTimer();
+        } else {
+             timeLeftSpan.textContent = '--'; // On manual back navigation
+        }
+
+        updateNavigation();
+        updateProgress();
+        highlightSelectedAnswer(index);
+    }
+
+    // --- Answer Handling and Navigation Updates ---
+
+    function handleOptionClick(event) {
+        const button = event.target.closest('.option-button');
+        const qIndex = parseInt(button.dataset.questionIndex);
+        const oIndex = parseInt(button.dataset.optionIndex);
+        userAnswers[qIndex] = oIndex;
+        const optionsGroup = button.closest('.options-group');
+        optionsGroup.querySelectorAll('.option-button').forEach(btn => btn.classList.remove('selected'));
+        button.classList.add('selected');
+        updateNavigation();
+    }
+
+    function highlightSelectedAnswer(index) {
+        const selectedOption = userAnswers[index];
+        const currentSlide = document.getElementById(`q-${index}`);
+        if (currentSlide) {
+            currentSlide.querySelectorAll('.option-button').forEach((btn, optIndex) => {
+                btn.classList.remove('selected');
+                if (optIndex === selectedOption) {
+                    btn.classList.add('selected');
+                }
+            });
+        }
+    }
+
+    function updateNavigation() {
+        const isAnswered = userAnswers[currentQuestionIndex] !== null;
+
+        prevButton.disabled = currentQuestionIndex === 0;
+
+        if (currentQuestionIndex < totalQuestions - 1) {
+            nextButton.textContent = 'Next →';
+            nextButton.disabled = !isAnswered; 
+            nextButton.onclick = () => { 
+                if (isAnswered) {
+                    clearInterval(timerInterval);
+                    currentQuestionIndex++; 
+                    renderQuestion(currentQuestionIndex);
+                } 
+            };
+        } else {
+            nextButton.textContent = 'Finish & Score';
+            nextButton.disabled = !isAnswered;
+            nextButton.onclick = () => { 
+                if (isAnswered) {
+                    clearInterval(timerInterval);
+                    showResults(); 
+                }
+            };
+        }
+    }
+
+    function updateProgress() {
+        const progress = ((currentQuestionIndex + (userAnswers[currentQuestionIndex] !== null ? 1 : 0)) / totalQuestions) * 100;
+        progressFill.style.width = `${progress}%`;
+    }
+
+    function calculateScore() {
+        let score = 0;
+        questions.forEach((q, index) => {
+            if (userAnswers[index] === q.answer) {
+                score++;
+            }
+        });
+        return score;
+    }
+
+    function showResults() {
+        // Stop timer
+        clearInterval(timerInterval);
+        
+        const finalScore = calculateScore();
+        const percentage = Math.round((finalScore / totalQuestions) * 100);
+        
+        let feedback = '';
+        if (percentage >= 90) {
+            feedback = "Outstanding! You demonstrate expert-level knowledge in QA principles, automation, and Agile collaboration.";
+        } else if (percentage >= 70) {
+            feedback = "Very strong! You have a solid grasp of core QA strategy and troubleshooting.";
+        } else if (percentage >= 50) {
+            feedback = "Good foundation. Focus on deeper experience in test automation and non-functional testing.";
+        } else {
+            feedback = "Further study is recommended in test design techniques and Agile QA practices.";
+        }
+
+        quizContent.style.display = 'none';
+        document.getElementById('navigation').style.display = 'none';
+        document.getElementById('timer-display').style.display = 'none';
+
+        progressFill.style.width = '100%';
+        resultScreen.style.display = 'block';
+        document.getElementById('final-score').textContent = `${finalScore} / ${totalQuestions}`;
+        document.getElementById('performance-feedback').textContent = feedback;
+    }
+
+    prevButton.addEventListener('click', () => {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            renderQuestion(currentQuestionIndex);
+        }
+    });
+
+</script>
+
+</body>
+</html>
