@@ -77,7 +77,7 @@
         }
         #navigation {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end; /* Align to the right since 'Previous' is gone */
             align-items: center;
             margin-top: 30px;
         }
@@ -96,11 +96,6 @@
         #next-button:disabled {
             background-color: #ccc;
             cursor: not-allowed;
-        }
-        #prev-button {
-            background-color: #e9ecef;
-            color: #333;
-            display: none;
         }
         #result-screen {
             text-align: center;
@@ -181,7 +176,7 @@
             ⏱️ **Time Limit:** You have **30 seconds** per question.
         </div>
         <div class="instruction-item important-note">
-            ⚠️ **Critical:** The timer will start immediately upon clicking 'Start Test' and questions will auto-advance when time runs out. You cannot return to skipped questions once the timer expires.
+            ⚠️ **Critical:** The timer will start immediately upon clicking 'Start Test' and questions will auto-advance when time runs out. **There is no going back.**
         </div>
         <button id="start-button" onclick="startQuiz()">Start Test</button>
     </div>
@@ -215,234 +210,233 @@
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
+            [array[i], array[j]] = [array[i], array[j]];
         }
         return array;
     }
 
     const initialQuestions = [
-        // --- 20 QA Scenario Questions (Copied from previous response) ---
+        // --- 20 QA Scenario Questions ---
         {
             scenario: "A developer fixes a critical defect in the payment gateway. You need to ensure the fix works and hasn't broken anything adjacent to the code change.",
             question: "What type of testing should you prioritize immediately after the fix is deployed to the QA environment?",
             options: [
-                "A. Regression Testing (Full Suite)",
-                "B. Load Testing",
-                "C. **Sanity Testing** (focused on the change area)",
-                "D. Exploratory Testing"
+                "**Sanity Testing** (focused on the change area)",
+                "Regression Testing (Full Suite)",
+                "Load Testing",
+                "Exploratory Testing"
             ],
-            answerText: "C. **Sanity Testing** (focused on the change area)"
+            answerText: "**Sanity Testing** (focused on the change area)"
         },
         {
             scenario: "You find a defect where a user's profile image occasionally fails to load, but only for users in Asia using a mobile device on a slow network. It doesn't affect core functionality.",
             question: "When logging this defect, what is the most appropriate combination of **Severity** and **Priority**?",
             options: [
-                "A. Severity: Critical, Priority: High",
-                "B. Severity: Minor, Priority: Low",
-                "C. **Severity: Major, Priority: Medium**",
-                "D. Severity: Blocker, Priority: Urgent"
+                "**Severity: Major, Priority: Medium**",
+                "Severity: Critical, Priority: High",
+                "Severity: Minor, Priority: Low",
+                "Severity: Blocker, Priority: Urgent"
             ],
-            answerText: "C. **Severity: Major, Priority: Medium**"
+            answerText: "**Severity: Major, Priority: Medium**"
         },
         {
             scenario: "The team decides to implement **Behavior-Driven Development (BDD)**. The Product Owner asks you to contribute to writing feature specifications.",
             question: "Which standardized format would you use to write these shared, human-readable test cases?",
             options: [
-                "A. Python Scripts",
-                "B. **Gherkin Syntax (Given-When-Then)**",
-                "C. XML Schemas",
-                "D. UML Diagrams"
+                "**Gherkin Syntax (Given-When-Then)**",
+                "Python Scripts",
+                "XML Schemas",
+                "UML Diagrams"
             ],
-            answerText: "B. **Gherkin Syntax (Given-When-Then)**"
+            answerText: "**Gherkin Syntax (Given-When-Then)**"
         },
         {
             scenario: "You need to create a **Unit Test** for a function that converts currency. The function has 5 different input parameters.",
             question: "According to the **Test Automation Pyramid**, who is primarily responsible for writing and maintaining this test?",
             options: [
-                "A. **The Developer** (Dev)",
-                "B. The QA Engineer",
-                "C. The DevOps Engineer",
-                "D. The Product Owner"
+                "**The Developer** (Dev)",
+                "The QA Engineer",
+                "The DevOps Engineer",
+                "The Product Owner"
             ],
-            answerText: "A. **The Developer** (Dev)"
+            answerText: "**The Developer** (Dev)"
         },
         {
             scenario: "The application uses a **third-party API** for mapping data. You want to write automated tests that don't rely on the external API being available or incurring usage costs.",
             question: "Which technique should you use in your automated integration tests?",
             options: [
-                "A. Load Testing the third-party API.",
-                "B. Writing an End-to-End (E2E) test.",
-                "C. **Mocking or Stubbing** the API response.",
-                "D. Performing manual testing only."
+                "**Mocking or Stubbing** the API response.",
+                "Load Testing the third-party API.",
+                "Writing an End-to-End (E2E) test.",
+                "Performing manual testing only."
             ],
-            answerText: "C. **Mocking or Stubbing** the API response."
+            answerText: "**Mocking or Stubbing** the API response."
         },
         {
             scenario: "The new build for the Staging environment just passed all automated CI tests. When you manually test, the main login page fails with a **500 Internal Server Error**.",
             question: "What is the most likely reason why the automated tests passed but manual testing failed?",
             options: [
-                "A. The developer forgot to commit the code.",
-                "B. The automated tests were **not comprehensive** (e.g., only unit tests ran).",
-                "C. The server ran out of disk space.",
-                "D. The E2E tests were written in the wrong language."
+                "The automated tests were **not comprehensive** (e.g., only unit tests ran).",
+                "The developer forgot to commit the code.",
+                "The server ran out of disk space.",
+                "The E2E tests were written in the wrong language."
             ],
-            answerText: "B. The automated tests were **not comprehensive** (e.g., only unit tests ran)."
+            answerText: "The automated tests were **not comprehensive** (e.g., only unit tests ran)."
         },
         {
             scenario: "Your team is preparing for a Black Friday sales event. You need to verify the application can handle ten times the normal traffic.",
             question: "What type of non-functional testing are you about to perform?",
             options: [
-                "A. Regression Testing",
-                "B. **Stress Testing**",
-                "C. Usability Testing",
-                "D. Security Penetration Testing"
+                "**Stress Testing**",
+                "Regression Testing",
+                "Usability Testing",
+                "Security Penetration Testing"
             ],
-            answerText: "B. **Stress Testing**"
+            answerText: "**Stress Testing**"
         },
         {
             scenario: "You are writing a test case for a user form that accepts a 10-digit phone number. You want to minimize the number of test cases while ensuring high coverage.",
             question: "Which test case design technique should you use to select the most impactful inputs?",
             options: [
-                "A. Pairwise Testing",
-                "B. **Equivalence Partitioning and Boundary Value Analysis**",
-                "C. Fuzz Testing",
-                "D. Ad-hoc Testing"
+                "**Equivalence Partitioning and Boundary Value Analysis**",
+                "Pairwise Testing",
+                "Fuzz Testing",
+                "Ad-hoc Testing"
             ],
-            answerText: "B. **Equivalence Partitioning and Boundary Value Analysis**"
+            answerText: "**Equivalence Partitioning and Boundary Value Analysis**"
         },
         {
             scenario: "In an Agile sprint, you find a bug in a feature that was signed off and deployed in the *previous* sprint.",
             question: "What is your best course of action regarding the current sprint's work?",
             options: [
-                "A. Stop current work and fix the bug immediately (if priority allows).",
-                "B. **Log the bug and bring it up for triage/prioritization with the Product Owner.**",
-                "C. Delete the entire feature and restart.",
-                "D. Only fix the bug after the current sprint is complete."
+                "**Log the bug and bring it up for triage/prioritization with the Product Owner.**",
+                "Stop current work and fix the bug immediately (if priority allows).",
+                "Delete the entire feature and restart.",
+                "Only fix the bug after the current sprint is complete."
             ],
-            answerText: "B. **Log the bug and bring it up for triage/prioritization with the Product Owner.**"
+            answerText: "**Log the bug and bring it up for triage/prioritization with the Product Owner.**"
         },
         {
             scenario: "You are setting up automated E2E tests using Cypress. You need to ensure the test environment always starts with a clean database state.",
             question: "What DevOps practice/tool would you ask the DevOps Engineer to set up for this specific need?",
             options: [
-                "A. Implement a new CI/CD pipeline.",
-                "B. **Provide database sanitization or a 'golden' snapshot reset endpoint.**",
-                "C. Increase the CPU allocation for the test server.",
-                "D. Use a different UI testing tool."
+                "**Provide database sanitization or a 'golden' snapshot reset endpoint.**",
+                "Implement a new CI/CD pipeline.",
+                "Increase the CPU allocation for the test server.",
+                "Use a different UI testing tool."
             ],
-            answerText: "B. **Provide database sanitization or a 'golden' snapshot reset endpoint.**"
+            answerText: "**Provide database sanitization or a 'golden' snapshot reset endpoint.**"
         },
         {
             scenario: "A security audit reveals that your application's input fields are vulnerable to **Cross-Site Scripting (XSS)** attacks.",
             question: "Which common QA testing type covers this vulnerability?",
             options: [
-                "A. Usability Testing",
-                "B. **Penetration Testing (Security Testing)**",
-                "C. Accessibility Testing",
-                "D. Unit Testing"
+                "**Penetration Testing (Security Testing)**",
+                "Usability Testing",
+                "Accessibility Testing",
+                "Unit Testing"
             ],
-            answerText: "B. **Penetration Testing (Security Testing)**"
+            answerText: "**Penetration Testing (Security Testing)**"
         },
         {
             scenario: "You observe inconsistent test results; sometimes a test passes, and sometimes it fails, without any code change.",
             question: "What is the technical term for this unreliable test behavior?",
             options: [
-                "A. Boundary Condition Failure",
-                "B. **Flaky Test**",
-                "C. Integration Error",
-                "D. Negative Test Failure"
+                "**Flaky Test**",
+                "Boundary Condition Failure",
+                "Integration Error",
+                "Negative Test Failure"
             ],
-            answerText: "B. **Flaky Test**"
+            answerText: "**Flaky Test**"
         },
         {
             scenario: "You are tasked with confirming the application meets the documented requirements and specifications.",
             question: "Which of the two fundamental QA activities are you performing: Verification or Validation?",
             options: [
-                "A. Validation ('Are we building the right product?')",
-                "B. **Verification** ('Are we building the product right?')",
-                "C. Both activities simultaneously.",
-                "D. Neither, this is a developer task."
+                "**Verification** ('Are we building the product right?')",
+                "Validation ('Are we building the right product?')",
+                "Both activities simultaneously.",
+                "Neither, this is a developer task."
             ],
-            answerText: "B. **Verification** ('Are we building the product right?')"
+            answerText: "**Verification** ('Are we building the product right?')"
         },
         {
             scenario: "Your team uses **Selenium** for E2E tests. The tests run successfully on your local machine but fail immediately in the CI/CD pipeline environment.",
             question: "What is the **most probable** cause of this failure?",
             options: [
-                "A. The local database is out of sync.",
-                "B. The CI environment is missing the necessary **browser driver (e.g., ChromeDriver)** or GUI is unavailable (Headless mode issue).",
-                "C. The application code is different between environments.",
-                "D. The network latency is too high."
+                "The CI environment is missing the necessary **browser driver (e.g., ChromeDriver)** or GUI is unavailable (Headless mode issue).",
+                "The local database is out of sync.",
+                "The application code is different between environments.",
+                "The network latency is too high."
             ],
-            answerText: "B. The CI environment is missing the necessary **browser driver (e.g., ChromeDriver)** or GUI is unavailable (Headless mode issue)."
+            answerText: "The CI environment is missing the necessary **browser driver (e.g., ChromeDriver)** or GUI is unavailable (Headless mode issue)."
         },
         {
             scenario: "You are given a complex new feature with no clear documentation. You need to quickly understand its functionality and find potential weak spots.",
             question: "Which testing technique is best suited for this exploratory, unscripted investigation?",
             options: [
-                "A. Formal Review",
-                "B. Automated Regression",
-                "C. **Exploratory Testing**",
-                "D. Stress Testing"
+                "**Exploratory Testing**",
+                "Formal Review",
+                "Automated Regression",
+                "Stress Testing"
             ],
-            answerText: "C. **Exploratory Testing**"
+            answerText: "**Exploratory Testing**"
         },
         {
             scenario: "During an Agile daily stand-up, a developer states they wrote code based on a misunderstanding of the acceptance criteria (AC).",
             question: "How could the QA process have **prevented** this issue (Shift-Left principle)?",
             options: [
-                "A. By only doing formal testing after the feature is complete.",
-                "B. **By the QA being involved in the AC/requirements refinement (Grooming) BEFORE coding starts.**",
-                "C. By making the code review mandatory.",
-                "D. By writing more End-to-End tests."
+                "**By the QA being involved in the AC/requirements refinement (Grooming) BEFORE coding starts.**",
+                "By only doing formal testing after the feature is complete.",
+                "By making the code review mandatory.",
+                "By writing more End-to-End tests."
             ],
-            answerText: "B. **By the QA being involved in the AC/requirements refinement (Grooming) BEFORE coding starts.**"
+            answerText: "**By the QA being involved in the AC/requirements refinement (Grooming) BEFORE coding starts.**"
         },
         {
             scenario: "A QA lead wants to ensure the **entire application** is stable and the major components are communicating correctly after a large merge.",
             question: "Which testing type is most appropriate for this objective?",
             options: [
-                "A. Unit Testing",
-                "B. Integration Testing (component-to-component)",
-                "C. **Smoke Testing** (High-level system check)",
-                "D. Beta Testing"
+                "**Smoke Testing** (High-level system check)",
+                "Unit Testing",
+                "Integration Testing (component-to-component)",
+                "Beta Testing"
             ],
-            answerText: "C. **Smoke Testing** (High-level system check)"
+            answerText: "**Smoke Testing** (High-level system check)"
         },
         {
             scenario: "You discover a defect in Production that was NOT found during testing, primarily because the test data used was too uniform (e.g., all usernames were 'user1', 'user2').",
             question: "What critical QA planning area failed, and what is the solution?",
             options: [
-                "A. Failure in performance testing; Solution: Increase load.",
-                "B. Failure in security testing; Solution: Use XSS payload.",
-                "C. **Failure in Test Data Management (TDM); Solution: Use diverse, realistic, masked data.**",
-                "D. Failure in defect reporting; Solution: Change Jira format."
+                "**Failure in Test Data Management (TDM); Solution: Use diverse, realistic, masked data.**",
+                "Failure in performance testing; Solution: Increase load.",
+                "Failure in security testing; Solution: Use XSS payload.",
+                "Failure in defect reporting; Solution: Change Jira format."
             ],
-            answerText: "C. **Failure in Test Data Management (TDM); Solution: Use diverse, realistic, masked data.**"
+            answerText: "**Failure in Test Data Management (TDM); Solution: Use diverse, realistic, masked data.**"
         },
         {
             scenario: "The application uses a microservice architecture where many small services talk to each other. You need to verify data consistency across three different services (A, B, and C).",
             question: "Which type of automated test provides the best coverage for verifying data flow between these internal services?",
             options: [
-                "A. UI Tests (E2E)",
-                "B. **Integration Tests (API/Service Level)**",
-                "C. Manual Regression Tests",
-                "D. Accessibility Tests"
+                "**Integration Tests (API/Service Level)**",
+                "UI Tests (E2E)",
+                "Manual Regression Tests",
+                "Accessibility Tests"
             ],
-            answerText: "B. **Integration Tests (API/Service Level)**"
+            answerText: "**Integration Tests (API/Service Level)**"
         },
         {
             scenario: "During load testing, you find that CPU usage on the web servers remains low (20%), but the response time dramatically slows down as the number of users increases.",
             question: "Which component is the most likely bottleneck to investigate next?",
             options: [
-                "A. **Database performance (e.g., slow queries, connection pooling)**",
-                "B. Frontend JavaScript rendering speed.",
-                "C. Load balancer configuration (e.g., ALB rules).",
-                "D. Network cable integrity."
+                "**Database performance (e.g., slow queries, connection pooling)**",
+                "Frontend JavaScript rendering speed.",
+                "Load balancer configuration (e.g., ALB rules).",
+                "Network cable integrity."
             ],
-            answerText: "A. **Database performance (e.g., slow queries, connection pooling)**"
+            answerText: "**Database performance (e.g., slow queries, connection pooling)**"
         }
-        // --- End of Questions ---
     ];
 
     // --- Data Preparation: Match Answer Index to Randomized Options ---
@@ -469,7 +463,6 @@
     const quizContent = document.getElementById('quiz-content');
     const resultScreen = document.getElementById('result-screen');
     const nextButton = document.getElementById('next-button');
-    const prevButton = document.getElementById('prev-button');
     const progressFill = document.getElementById('progress-fill');
     const timeLeftSpan = document.getElementById('time-left');
     const totalQuestions = questions.length;
@@ -540,11 +533,12 @@
         
         setTimeout(() => { questionElement.classList.add('active'); }, 10); 
         
-        // Only restart the timer if we are moving forward or starting
+        // Always restart the timer when moving to a new question
         if (index >= userAnswers.findIndex(a => a === null) || index === 0) {
              startTimer();
         } else {
-             timeLeftSpan.textContent = '--'; // On manual back navigation
+             // This state should not be reachable due to lack of a 'Previous' button
+             timeLeftSpan.textContent = '--'; 
         }
 
         updateNavigation();
@@ -581,7 +575,7 @@
     function updateNavigation() {
         const isAnswered = userAnswers[currentQuestionIndex] !== null;
 
-        prevButton.disabled = currentQuestionIndex === 0;
+        // No Prev button logic needed.
 
         if (currentQuestionIndex < totalQuestions - 1) {
             nextButton.textContent = 'Next →';
@@ -606,7 +600,8 @@
     }
 
     function updateProgress() {
-        const progress = ((currentQuestionIndex + (userAnswers[currentQuestionIndex] !== null ? 1 : 0)) / totalQuestions) * 100;
+        const answeredCount = userAnswers.filter(a => a !== null).length;
+        const progress = (answeredCount / totalQuestions) * 100;
         progressFill.style.width = `${progress}%`;
     }
 
@@ -628,11 +623,11 @@
         const percentage = Math.round((finalScore / totalQuestions) * 100);
         
         let feedback = '';
-        if (percentage >= 90) {
+        if (percentage >= 95) {
             feedback = "Outstanding! You demonstrate expert-level knowledge in QA principles, automation, and Agile collaboration.";
-        } else if (percentage >= 70) {
+        } else if (percentage >= 85) {
             feedback = "Very strong! You have a solid grasp of core QA strategy and troubleshooting.";
-        } else if (percentage >= 50) {
+        } else if (percentage >= 75) {
             feedback = "Good foundation. Focus on deeper experience in test automation and non-functional testing.";
         } else {
             feedback = "Further study is recommended in test design techniques and Agile QA practices.";
@@ -647,14 +642,6 @@
         document.getElementById('final-score').textContent = `${finalScore} / ${totalQuestions}`;
         document.getElementById('performance-feedback').textContent = feedback;
     }
-
-    prevButton.addEventListener('click', () => {
-        if (currentQuestionIndex > 0) {
-            currentQuestionIndex--;
-            renderQuestion(currentQuestionIndex);
-        }
-    });
-
 </script>
 
 </body>
